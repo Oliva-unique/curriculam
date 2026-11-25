@@ -35,13 +35,13 @@ h1 em{font-style:normal;background:linear-gradient(transparent 58%,var(--hl) 58%
 .blk{break-inside:avoid;page-break-inside:avoid;margin-bottom:4mm}
 .blk h2{font-size:11pt;font-weight:900;color:#fff;background:var(--g);display:flex;justify-content:space-between;align-items:center;padding:1.8mm 3.5mm;border-radius:2mm 2mm 0 0}
 .blk h2 small{font-size:8pt;font-weight:700;color:var(--mist)}
-table{width:100%;border-collapse:collapse;font-size:8.6pt;table-layout:fixed}
+table{width:100%;border-collapse:collapse;font-size:9.6pt;table-layout:fixed}
 th{background:#F2F7F1;color:var(--mut);font-weight:700;font-size:7.8pt;text-align:left;padding:1.5mm 3mm;border-bottom:1px solid var(--line)}
-td{padding:2mm 3mm;border-bottom:1px solid var(--line);vertical-align:top}
+td{padding:2.6mm 3.5mm;border-bottom:1px solid var(--line);vertical-align:top}
 td.a{width:24mm;font-weight:900;color:var(--g)}
 tr.chg td.a::after{content:'조정';display:block;font-size:6.8pt;font-weight:700;color:#b58a00;margin-top:.5mm}
 .bk{display:flex;align-items:center;gap:2mm;margin:.6mm 0;line-height:1.3}
-.bk img,.bk .nc{width:7.5mm;height:10.5mm;object-fit:cover;border-radius:.8mm;flex:none;box-shadow:0 .3mm .8mm rgba(0,0,0,.15)}
+.bk img,.bk .nc{width:10mm;height:14mm;object-fit:cover;border-radius:.8mm;flex:none;box-shadow:0 .3mm .8mm rgba(0,0,0,.15)}
 .bk .nc{border:.3mm dashed var(--sage);background:#FBF7EC}
 .bk i{font-style:normal;font-weight:900;font-size:6.6pt;border-radius:1mm;padding:.2mm 1.2mm;margin-left:1mm;white-space:nowrap}
 .bk.out{color:#9b998f;text-decoration:line-through}
@@ -72,7 +72,7 @@ function defaultCells(cur){const mc=BCOLS.filter(v=>v>=cur-.01),cells={};AREAS.f
  B.forEach(b=>{if(b.alt||b.mapOnly)return;const v=b.home!=null?(mc.includes(b.home)?b.home:null):b.cols.find(c=>mc.includes(c));if(v!=null)cells[b.a][v].push(b.id)});return cells}
 const cov=id=>{const b=BK[id];const c=b.nocov?null:A.cov[id];return c?`<img src="${c}" alt="">`:'<span class="nc"></span>'};
 function render(D){
- const cur=+D.c,mc=BCOLS.filter(v=>v>=cur-.01),def=defaultCells(cur),mine=D.cells||{};
+ const cur=+D.c,gN=Math.floor(cur+1e-9),mc=BCOLS.filter(v=>v>=cur-.01&&Math.floor(v+1e-9)===gN),def=defaultCells(cur),mine=D.cells||{};
  const behind=id=>{const b=BK[id];return b&&!b.slot&&b.cols.length>0&&b.lv<cur-.01};
  const get=(o,a,v)=>((o[a]||{})[v]||(o[a]||{})[String(v)]||[]).filter(id=>BK[id]&&!BK[id].slot);
  let blocks='',nChg=0,nBack=0;const chgAreas=new Set();
@@ -84,15 +84,15 @@ function render(D){
    rows+=`<tr class="${changed?'chg':''}"><td class="a">${esc(a.n)}</td><td>${dl}</td><td>${ml}</td></tr>`});
   if(!rows)return;
   const G=GOALS[goalKey(v)]||{};
-  blocks+=`<div class="blk"><h2>${esc(colLabel(v))}<small>${G.min?'수업 '+esc(G.min):''}</small></h2><table><thead><tr><th style="width:24mm">영역</th><th>기존 학년 커리</th><th>맞춤 커리</th></tr></thead><tbody>${rows}</tbody></table></div>`});
+  blocks+=`<div class="blk"><h2>${esc(colLabel(v))}<small>${G.min?'수업 '+esc(G.min):''}</small></h2><table><thead><tr><th style="width:24mm">영역</th><th>기존 ${esc(glShort(cur))} 커리</th><th>맞춤 커리</th></tr></thead><tbody>${rows}</tbody></table></div>`});
  const nm=esc(D.n||'우리 아이'),d=new Date(),ds=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
  const lt=(D.lt||[]).length?`<div class="lt"><h3>레벨테스트 판정</h3><ul>${D.lt.map(r=>`<li><b>${esc(r[0])}</b>${esc(r[1])}${r[2]?` <small>· ${esc(r[2])}</small>`:''}</li>`).join('')}</ul></div>`:'';
- const lead=chgAreas.size?`${[...chgAreas].map(esc).join('·')} 영역을 학생에게 맞게 조정했습니다. 나머지 영역은 ${esc(glShort(cur))} 기존 과정을 그대로 따릅니다.`:`${esc(glShort(cur))} 기존 학년 커리를 그대로 따르는 계획입니다.`;
+ const lead=chgAreas.size?`${[...chgAreas].map(esc).join('·')} 영역을 학생에게 맞게 조정했습니다. 나머지 영역은 기존 ${esc(glShort(cur))} 과정을 그대로 따릅니다.`:`기존 ${esc(glShort(cur))} 커리를 그대로 따르는 계획입니다.`;
  $('#out').innerHTML=`<div class="sheet">
  <div class="hd"><div><img src="${A.logo}" alt="UNIQUE ENGLISH"><h1>${nm} 학생 <em>맞춤 커리큘럼</em> 안내</h1><p class="lead">${lead}</p></div><div class="meta">상담일 ${ds}<br>현재 ${esc(colLabel(mc[0]))}</div></div>
- <div class="stats"><div><b>${esc(colLabel(mc[0]))} ~ ${esc(colLabel(mc[mc.length-1]))}</b><span>안내 기간</span></div><div><b>${chgAreas.size}개 영역</b><span>기존 커리에서 조정</span></div><div><b>${nBack}권</b><span>기초 보강 교재</span></div></div>
+ <div class="stats"><div><b>${esc(mc.length>1?glShort(cur):colLabel(mc[0]))}</b><span>안내 학년</span></div><div><b>${chgAreas.size}개 영역</b><span>기존 커리에서 조정</span></div><div><b>${nBack}권</b><span>기초 보강 교재</span></div></div>
  ${lt}
- <div class="key"><span>왼쪽은 학년별 기존 커리, 오른쪽은 이번 상담으로 정한 커리입니다.</span><span><i class="t-new">조정</i>기존과 다른 교재</span><span><i class="t-back">보강</i>아래 단계 교재로 기초 다지기</span><span><i class="t-out" style="text-decoration:line-through">취소선</i>맞춤 커리에서 빠진 교재</span></div>
+ <div class="key"><span>왼쪽은 ${esc(glShort(cur))} 기존 커리, 오른쪽은 이번 상담으로 정한 커리입니다.</span><span><i class="t-new">조정</i>기존과 다른 교재</span><span><i class="t-back">보강</i>아래 단계 교재로 기초 다지기</span><span><i class="t-out" style="text-decoration:line-through">취소선</i>맞춤 커리에서 빠진 교재</span></div>
  ${blocks}
  <div class="ft"><span><b>UNIQUE ENGLISH</b> · 생각하는 Test로 꾸준히 확인하며 과정을 조정합니다.</span><span>문의 051-791-0585 · 부산 동래구 사직로70번길 56</span></div></div>`;
  document.title=`${D.n||'학생'} 맞춤 커리큘럼 안내`}
